@@ -3,24 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Say Hi Chatbot</title>
+    <title>SayHi Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chatbox { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
+        #userInput { margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Say Hi Chatbot!</h1>
-    <p>Type your message below:</p>
-    <input type="text" id="userMessage" placeholder="Say hi...">
-    <button onclick="sayHi()">Send</button>
-
-    <h2>Chat History</h2>
-    <div id="chatHistory"></div>
-
+    <h1>SayHi Chatbot</h1>
+    <div id="chatbox"></div>
+    <div id="userInput">
+        <input type="text" id="userMessage" placeholder="Type your message here..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
     <script>
-        function sayHi() {
-            const userMessage = document.getElementById('userMessage').value;
-            const chatHistory = document.getElementById('chatHistory');
-            chatHistory.innerHTML += `<p>You: ${userMessage}</p>`;
-            chatHistory.innerHTML += `<p>Bot: Hi there!</p>`;
-            document.getElementById('userMessage').value = '';
+        function appendMessage(who, message) {
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<p><strong>${who}:</strong> ${message}</p>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userMessage');
+            const userMessage = input.value;
+            appendMessage('You', userMessage);
+            input.value = '';
+
+            // Here, you would normally call your chatbot API and handle the response
+            const botResponse = 'This is a response from the SayHi chatbot.'; // Placeholder response
+            appendMessage('SayHi', botResponse);
         }
     </script>
 </body>
