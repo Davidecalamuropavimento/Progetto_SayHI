@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Say Hi Chatbot</title>
+</head>
+<body>
+    <h1>Welcome to the Say Hi Chatbot!</h1>
+    <p>Type your message below:</p>
+    <input type="text" id="userMessage" placeholder="Say hi...">
+    <button onclick="sayHi()">Send</button>
+
+    <h2>Chat History</h2>
+    <div id="chatHistory"></div>
+
+    <script>
+        function sayHi() {
+            const userMessage = document.getElementById('userMessage').value;
+            const chatHistory = document.getElementById('chatHistory');
+            chatHistory.innerHTML += `<p>You: ${userMessage}</p>`;
+            chatHistory.innerHTML += `<p>Bot: Hi there!</p>`;
+            document.getElementById('userMessage').value = '';
+        }
+    </script>
+</body>
+</html>
