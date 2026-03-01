@@ -1,39 +1,273 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SayHi Chatbot</title>
+    <title>SayHi! - Chatbot</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        #chatbox { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
-        #userInput { margin-top: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .message p {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .bot-message p {
+            background: #667eea;
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message p {
+            background: #e0e0e0;
+            color: #333;
+            border-bottom-right-radius: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #userInput:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-    <h1>SayHi Chatbot</h1>
-    <div id="chatbox"></div>
-    <div id="userInput">
-        <input type="text" id="userMessage" placeholder="Type your message here..." />
-        <button onclick="sendMessage()">Send</button>
+    <div class="container">
+        <div class="chat-header">
+            <h1>🤖 SayHi!</h1>
+            <p>Ciao! Sono qui per aiutarti</p>
+        </div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">
+                <p>Ciao! Sono SayHi!, il tuo assistente virtuale. Come posso aiutarti?</p>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Scrivi il tuo messaggio...">
+            <button onclick="inviaMessaggio()">Invia</button>
+        </div>
     </div>
+
     <script>
-        function appendMessage(who, message) {
-            const chatbox = document.getElementById('chatbox');
-            chatbox.innerHTML += `<p><strong>${who}:</strong> ${message}</p>`;
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }
+        // Database di risposte
+        const responses = {
+            saluti: {
+                patterns: ['ciao', 'salve', 'hey', 'buongiorno', 'buonasera', 'ola'],
+                responses: ['Ciao! Come stai?', 'Ehi! Piacere di conoscerti! 👋', 'Buongiorno! 😊', 'Salve! Che bello!']
+            },
+            nome: {
+                patterns: ['come ti chiami', 'chi sei', 'nome', 'qual è il tuo nome'],
+                responses: ["Mi chiamo SayHi! 🤖", "Sono SayHi!, il tuo assistente virtuale!", "Puoi chiamarmi SayHi!"]
+            },
+            aiuto: {
+                patterns: ['aiuto', 'help', 'cosa puoi fare', 'comandi'],
+                responses: ["Posso parlare con te di tutto! 😊", "Puoi chiedermi qualsiasi cosa!", "Sono qui per aiutarti!"]
+            },
+            grazie: {
+                patterns: ['grazie', 'grazie mille', 'merci', 'thanks'],
+                responses: ['Di nulla! 😊', 'Prego! Se hai bisogno, sono qui!', 'Sono felice di aiutare! 💪']
+            },
+            scuola: {
+                patterns: ['scuola', 'studio', 'compiti', 'esame', 'lezione'],
+                responses: ['La scuola è importante! 📚', 'Quale materia ti interessa?', 'In cosa posso aiutarti con gli studi?']
+            },
+            progetto: {
+                patterns: ['progetto', 'fsl', 'sayhi', 'chatbot', 'javascript'],
+                responses: ['Oh, stai lavorando su questo progetto? Bellissimo! 🚀', 'Che bello che stai creando un chatbot! 🎉', 'Fantastico! Stai sulla strada giusta!']
+            },
+            default: {
+                responses: ['Interessante! Puoi dirmi di più?', 'Ho capito! Come posso aiutarti?', 'Uau! Continua pure!', 'Capisco, racconta di più! 😊']
+            }
+        };
 
-        function sendMessage() {
-            const input = document.getElementById('userMessage');
-            const userMessage = input.value;
-            appendMessage('You', userMessage);
+        function inviaMessaggio() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const messaggio = input.value.trim();
+            
+            if (messaggio === '') return;
+            
+            // Mostra messaggio utente
+            const divUtente = document.createElement('div');
+            divUtente.className = 'message user-message';
+            divUtente.innerHTML = '<p>' + messaggio + '</p>';
+            chatBox.appendChild(divUtente);
+            
+            // Pulisci input
             input.value = '';
-
-            // Here, you would normally call your chatbot API and handle the response
-            const botResponse = 'This is a response from the SayHi chatbot.'; // Placeholder response
-            appendMessage('SayHi', botResponse);
+            input.focus();
+            
+            // Scroll in basso
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            // Risposta del bot
+            setTimeout(() => {
+                const risposta = generaRisposta(messaggio);
+                const divBot = document.createElement('div');
+                divBot.className = 'message bot-message';
+                divBot.innerHTML = '<p>' + risposta + '</p>';
+                chatBox.appendChild(divBot);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 600);
         }
+
+        function generaRisposta(messaggio) {
+            const msg = messaggio.toLowerCase();
+            
+            for (const categoria in responses) {
+                if (categoria === 'default') continue;
+                
+                const patterns = responses[categoria].patterns;
+                for (const pattern of patterns) {
+                    if (msg.includes(pattern)) {
+                        const risposte = responses[categoria].responses;
+                        return risposte[Math.floor(Math.random() * risposte.length)];
+                    }
+                }
+            }
+            
+            const risposte = responses.default.responses;
+            return risposte[Math.floor(Math.random() * risposte.length)];
+        }
+
+        // Permette di inviare con Enter
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                inviaMessaggio();
+            }
+        });
     </script>
 </body>
 </html>
